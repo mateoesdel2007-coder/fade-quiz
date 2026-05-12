@@ -21,6 +21,8 @@ rendered_doc_correccion/
 fix_docx_unicode.py
 tools/
 data/materials.json
+data/questions_old.*
+reports/
 *.zip
 *.bak
 *.dwg

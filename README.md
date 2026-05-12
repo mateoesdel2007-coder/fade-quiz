@@ -19,15 +19,15 @@ Opción sencilla:
 Opción con servidor local:
 
 ```powershell
-cd "C:\Users\mateo\Documents\New project"
+cd "C:\ruta\a\fade-quiz"
 python -m http.server 8000
 ```
 
-Si `python` no funciona en tu ordenador, usa el Python que trae Codex:
+Si `python` no funciona en tu ordenador, instala Python o usa el servidor local que tengas disponible:
 
 ```powershell
-cd "C:\Users\mateo\Documents\New project"
-& "C:\Users\mateo\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe" -m http.server 8000
+cd "C:\ruta\a\fade-quiz"
+python -m http.server 8000
 ```
 
 Luego abre:
@@ -153,22 +153,22 @@ Importante: `data/questions.js` debe contener lo mismo que `questions.json`, per
 
 ## Regenerar o ampliar el banco
 
-Los materiales de FADE se leen desde:
+Los materiales de FADE deben estar en una carpeta local privada que no se sube al repositorio, por ejemplo:
 
 ```txt
-C:\Users\mateo\Desktop\1o_carrera\2o_cuatri\FADE
+C:\ruta\privada\a\materiales_FADE
 ```
 
 Primero extrae el texto:
 
 ```powershell
-& "C:\Users\mateo\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe" tools\extract_fade_materials.py
+python tools\extract_fade_materials.py
 ```
 
 Después regenera el banco:
 
 ```powershell
-& "C:\Users\mateo\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe" tools\build_questions.py
+python tools\build_questions.py
 ```
 
 La app excluye Tema 2 y Tema 4. El banco actual incluye Tema 1, 3, 5, 6, 7, 8, 9 y 10.

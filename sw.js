@@ -1,4 +1,4 @@
-const CACHE_NAME = "fade-test-v2";
+const CACHE_NAME = "fade-test-v4";
 const APP_SHELL = [
   "./",
   "./index.html",

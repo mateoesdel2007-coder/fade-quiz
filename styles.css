@@ -470,6 +470,26 @@ button {
   line-height: 1.45;
 }
 
+.option-explanations {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--surface) 75%, transparent);
+  color: var(--text);
+}
+
+.option-explanations ul {
+  display: grid;
+  gap: 7px;
+  margin: 0;
+  padding-left: 18px;
+}
+
+.option-explanations li {
+  line-height: 1.4;
+}
+
 .button-row {
   display: grid;
   gap: 10px;

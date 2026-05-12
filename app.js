@@ -6,7 +6,7 @@ const title = document.querySelector("#screenTitle");
 const backButton = document.querySelector("#backButton");
 const themeToggle = document.querySelector("#themeToggle");
 const navButtons = [...document.querySelectorAll("[data-nav]")];
-const STORAGE_KEY = "fade-test-progress-v1";
+const STORAGE_KEY = "fade-test-progress-v2";
 const THEME_KEY = "fade-test-theme";
 
 let stack = [];
@@ -27,6 +27,51 @@ function h(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+function optionExplanation(question, label) {
+  return question?.explicacion_opciones?.[label] || "";
+}
+
+function optionExplanationsHtml(question) {
+  if (!question?.explicacion_opciones) return "";
+  const items = ["A", "B", "C", "D"]
+    .filter((label) => question.explicacion_opciones[label])
+    .map((label) => `<li><strong>${h(label)}:</strong> ${h(question.explicacion_opciones[label])}</li>`)
+    .join("");
+  if (!items) return "";
+  return `
+    <div class="option-explanations">
+      <strong>Explicación de opciones</strong>
+      <ul>${items}</ul>
+    </div>
+  `;
+}
+
+function optionExplanationsText(question) {
+  if (!question?.explicacion_opciones) return "";
+  return ["A", "B", "C", "D"]
+    .filter((label) => question.explicacion_opciones[label])
+    .map((label) => `${label}: ${question.explicacion_opciones[label]}`)
+    .join(" ");
+}
+
+function fallbackWrongExplanation(question, label) {
+  const chosenText = question?.opciones?.[label] ? `Elegiste "${question.opciones[label]}". ` : "";
+  return `${chosenText}La respuesta correcta era ${question.respuesta_correcta}; revisa la explicación general para ver el matiz.`;
+}
+
+function resultFailureExplanation(question, choice) {
+  if (question.tipo !== "test") return question.explicacion || "";
+  const chosenSpecific = choice && choice !== question.respuesta_correcta
+    ? optionExplanation(question, choice) || fallbackWrongExplanation(question, choice)
+    : "";
+  return [
+    `Correcta: ${question.respuesta_correcta}.`,
+    question.explicacion,
+    optionExplanationsText(question) ? `Opciones: ${optionExplanationsText(question)}` : "",
+    chosenSpecific ? `Tu opción ${choice}: ${chosenSpecific}` : "",
+  ].filter(Boolean).join(" ");
 }
 
 function icon(name) {
@@ -526,21 +571,29 @@ function renderQuestion(answered = null) {
     .join("");
 
   const feedback = answered
-    ? `
+    ? (() => {
+      const correctSpecific = optionExplanation(question, question.respuesta_correcta);
+      const chosenSpecific = !answered.correct
+        ? optionExplanation(question, answered.choice) || fallbackWrongExplanation(question, answered.choice)
+        : "";
+      return `
       <section class="feedback ${answered.correct ? "good" : "bad"}">
         <h3>${answered.correct ? "Correcto" : "Incorrecto"}</h3>
-        <p><strong>Respuesta correcta: ${h(question.respuesta_correcta)}.</strong> ${h(question.explicacion)}</p>
+        <p><strong>Respuesta correcta: ${h(question.respuesta_correcta)}.</strong>${correctSpecific ? ` ${h(correctSpecific)}` : ""}</p>
+        ${question.explicacion ? `<p>${h(question.explicacion)}</p>` : ""}
         ${
           !answered.correct
-            ? `<p>Tu opción ${h(answered.choice)} no encaja porque confunde el concepto preguntado con otro punto del tema.</p>`
+            ? `<p><strong>Tu opción ${h(answered.choice)}:</strong> ${h(chosenSpecific)}</p>`
             : ""
         }
+        ${optionExplanationsHtml(question)}
       </section>
       <div class="button-row">
         <button class="secondary-button" type="button" data-action="mark-review">${icon("flag")} Marcar para repasar</button>
         <button class="primary-button" type="button" data-action="next-question">${icon("play")} Continuar</button>
       </div>
-    `
+    `;
+    })()
     : "";
 
   app.innerHTML = `
@@ -647,7 +700,7 @@ function renderResults(replace = false) {
                   <div class="result-line">
                     <span>${h(question.tema)} · ${h(question.pregunta)}</span>
                   </div>
-                  <p class="muted">${question.tipo === "test" ? `Correcta: ${h(question.respuesta_correcta)}. ` : ""}${h(question.explicacion)}</p>
+                  <p class="muted">${h(resultFailureExplanation(question, choice))}</p>
                 `
               )
               .join("")}
